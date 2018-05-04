@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AppService } from './app.service';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/interval';
+import { Forecast } from './forecast.model';
+import { JsonPipe } from '@angular/common';
+
 
 @Component({
   selector: 'app-root',
@@ -9,14 +11,13 @@ import 'rxjs/add/observable/interval';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'app';
-  weatherObservable: Observable<JSON>;
+  weatherObservable: Observable<Forecast>;
 
   constructor(private appService: AppService) { }
 
   ngOnInit() {
     this.weatherObservable = this.appService.getWeatherJSON();
-    this.weatherObservable.subscribe( data => console.log(data) );
+    this.weatherObservable.subscribe( data => console.log( data ) );
   }
 
 }
