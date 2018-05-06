@@ -1,29 +1,19 @@
 export class Forecast {
-//     day: {
-//         dayForecast: number;
-//         daySection: {
-//             section: string;
-//             weather: {
-//                 temperature: string;
-//                 wind: string;
-//                 rain: string;
-//             }
-//         }[];
-//     }[];
-
-    day: {
-        dayNumber: number;
-        section: {
-            type: string;
-            weather: {
-                temperature: string;
-                wind: string;
-                rain: string;
-                description: string;
-            }
-        }[]
-    }[];
-
+    day: IDay[];
 }
 
+export interface IDay {
+    dt: string;
+    dayForecast: 'heute'|'morgen'|'übermorgen'|'in drei Tagen';
+    section?: ISection[];
+}
 
+export interface ISection {
+    daytime: 'vormittags'|'nachmittags';
+    weather: {
+        temperature: string;
+        wind: string;
+        rain?: string;
+        description: string;
+    };
+}
