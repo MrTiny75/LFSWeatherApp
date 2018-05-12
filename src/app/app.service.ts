@@ -29,7 +29,7 @@ export class AppService {
 
     getWeatherJSON(): Observable<forecast.Forecast> {
         const params = this.httpParams.toString();
-        return IntervalObservable.create(this.seconds(3)).mergeMap(
+        return IntervalObservable.create(this.seconds(10)).mergeMap(
             () => this.http
                     .get('http://api.openweathermap.org/data/2.5/forecast?' + params)
                     .map( data => {
@@ -42,50 +42,67 @@ export class AppService {
     mapToRelevantFields(rawData: any): void {
         console.log(rawData);
 
-        let mnt: Moment;
-        let dayfrc: 'heute'|'morgen'|'übermorgen'|'in drei Tagen';
-
-        let i = 0;
         for ( const element of rawData.list ) {
-            mnt = moment(element.dt_txt);
-
-            // get the day - today tomorrow in two or three days
-            if ( moment().isSame(mnt.format(), 'day') ) {
-                dayfrc = 'heute';
-            } if ( moment().add(1, 'day').isSame(mnt.format(), 'day') ) {
-                dayfrc = 'morgen';
-            } if ( moment().add(2, 'day').isSame(mnt.format(), 'day') ) {
-                dayfrc = 'übermorgen';
-            } if ( moment().add(3, 'day').isSame(mnt.format(), 'day') ) {
-                dayfrc = 'in drei Tagen';
-            }
+            let mnt: Moment = moment(element.dt_txt);
+            const section = this.getSectionSegment(element, mnt);
 
             // get the section of the day - morning or afternoon
-
-            const sct: forecast.ISection = {
-                daytime: 'vormittags',
-                weather: {
-                    temperature: element.main.temp,
-                    wind: element.wind.speed,
-                    rain: (element.rain) ? element.rain['3h'] : '0',
-                    description: element.weather[0].description
-                }
-            };
-
             const day: forecast.IDay = {
                 dt: mnt.locale('de').format('dddd, Do MMMM YYYY'),
-                dayForecast: dayfrc,
                 section: new Array()
             };
 
-            day.section.push(sct);
+            // get the day - today tomorrow in two or three days
+            if ( moment().isSame(mnt.format(), 'day') ) {
+                console.log('heute');
+                day.dayForecast = 'heute';
 
-            this.forecast.day.push(day);
+                if ( section !== null ) {
+                    day.section.push(section);
 
-            if ( i === 4 ) {
+                    this.forecast.day.push(day);
+                }
+
+                
+
+            } else if ( moment().add(1, 'day').isSame(mnt.format(), 'day') ) {
+                console.log('morgen');
+                day.dayForecast = 'morgen';
+            } else if ( moment().add(2, 'day').isSame(mnt.format(), 'day') ) {
+                console.log('übermorgen');
+                day.dayForecast = 'übermorgen';
+            } else if ( moment().add(3, 'day').isSame(mnt.format(), 'day') ) {
+                console.log('in drei tagen');
+                day.dayForecast = 'in drei Tagen';
+            } else {
                 break;
             }
-            i++;
+
         }
+    }
+
+    getSectionSegment(element: any, mnt: Moment): forecast.ISection {
+        let sct: forecast.ISection = {
+            weather: {
+                temperature: element.main.temp,
+                wind: element.wind.speed,
+                rain: (element.rain) ? element.rain['3h'] : '0',
+                description: element.weather[0].description
+            }
+        };
+
+        if ( mnt.hour() === 3 ) {
+            sct.daytime = 'nachts';
+        } else if ( mnt.hour() === 9 ) {
+            sct.daytime = 'morgens';
+        } else if ( mnt.hour() === 15 ) {
+            sct.daytime = 'mittags';
+        } else if ( mnt.hour() === 21 ) {
+            sct.daytime = 'abends';
+        } else {
+            sct = null;
+        }
+
+        return sct;
     }
 }
