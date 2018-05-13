@@ -3,7 +3,7 @@ export class Forecast {
 }
 
 export interface IDay {
-    dt: string;
+    dt?: string;
     dayForecast?: 'heute'|'morgen'|'übermorgen'|'in drei Tagen';
     section?: ISection[];
 }

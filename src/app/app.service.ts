@@ -42,42 +42,56 @@ export class AppService {
     mapToRelevantFields(rawData: any): void {
         console.log(rawData);
 
+        // get the section of the day - morning or afternoon
+        const day: forecast.IDay = {
+            section: new Array()
+        };
+
         for ( const element of rawData.list ) {
             let mnt: Moment = moment(element.dt_txt);
+            day.dt = mnt.locale('de').format('dddd, Do MMMM YYYY');
             const section = this.getSectionSegment(element, mnt);
 
-            // get the section of the day - morning or afternoon
-            const day: forecast.IDay = {
-                dt: mnt.locale('de').format('dddd, Do MMMM YYYY'),
-                section: new Array()
-            };
-
             // get the day - today tomorrow in two or three days
-            if ( moment().isSame(mnt.format(), 'day') ) {
+            if ( moment().isSame(mnt.format(), 'day') ) { // heute
                 console.log('heute');
-                day.dayForecast = 'heute';
-
                 if ( section !== null ) {
                     day.section.push(section);
-
-                    this.forecast.day.push(day);
+                    if ( section.daytime === 'abends' ) {
+                        day.dayForecast = 'heute';
+                        this.forecast.day.push(day);
+                    }
                 }
-
-                
-
-            } else if ( moment().add(1, 'day').isSame(mnt.format(), 'day') ) {
+            } else if ( moment().add(1, 'day').isSame(mnt.format(), 'day') ) { // morgen
                 console.log('morgen');
-                day.dayForecast = 'morgen';
-            } else if ( moment().add(2, 'day').isSame(mnt.format(), 'day') ) {
+                if ( section !== null ) {
+                    day.section.push(section);
+                    if ( section.daytime === 'abends' ) {
+                        day.dayForecast = 'morgen';
+                        this.forecast.day.push(day);
+                    }
+                }
+            } else if ( moment().add(2, 'day').isSame(mnt.format(), 'day') ) { // übermorgen
                 console.log('übermorgen');
-                day.dayForecast = 'übermorgen';
-            } else if ( moment().add(3, 'day').isSame(mnt.format(), 'day') ) {
+                if ( section !== null ) {
+                    day.section.push(section);
+                    if ( section.daytime === 'abends' ) {
+                        day.dayForecast = 'übermorgen';
+                        this.forecast.day.push(day);
+                    }
+                }
+            } else if ( moment().add(3, 'day').isSame(mnt.format(), 'day') ) { // in drei tagen
                 console.log('in drei tagen');
-                day.dayForecast = 'in drei Tagen';
+                if ( section !== null ) {
+                    day.section.push(section);
+                    if ( section.daytime === 'abends' ) {
+                        day.dayForecast = 'in drei Tagen';
+                        this.forecast.day.push(day);
+                    }
+                }
             } else {
                 break;
             }
-
         }
     }
 
