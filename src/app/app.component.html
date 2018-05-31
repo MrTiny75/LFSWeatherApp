@@ -1,6 +1,18 @@
+{{ dateTimeNow }}<br>
 <div>
-    <img src="./assets/svg/cloudy-day-1.svg">
-</div>
-<div>
-    Temperatur:  °
+    <table>
+            <tr>
+                <td></td>
+                <td>nachts</td>
+                <td>morgens</td>
+                <td>mittags</td>
+                <td>abends</td>
+            </tr>
+            <tr *ngFor="let day of (day$ | async)">
+               <td>{{ day.dayForecast }}</td>
+               <td *ngFor="let section of getSections(day.section); let i = index">
+                   <div *ngIf=" i === section.index ">{{ section.weather.description }}</div>
+               </td> 
+            </tr>
+    </table>
 </div>

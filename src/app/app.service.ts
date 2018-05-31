@@ -2,18 +2,16 @@ import { Injectable, APP_ID } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { IntervalObservable } from 'rxjs/observable/IntervalObservable';
-import * as forecast from './forecast.model';
 import * as moment from 'moment';
 import 'moment/locale/de';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/catch';
 import { Moment } from 'moment';
-
+import { IDay, ISection } from './forecast.model';
 
 @Injectable()
 export class AppService {
-    forecast: forecast.Forecast = new forecast.Forecast();
-
     httpParams = new HttpParams()
         .set('q', 'Bonn,de')
         .set('APPID', '80b7b40897527c2a526a3b86b726d63c')
@@ -23,80 +21,86 @@ export class AppService {
         return x * 1000;
     }
 
-    constructor(private http: HttpClient) {
-        this.forecast.day = new Array();
-    }
+    constructor(private http: HttpClient) {}
 
-    getWeatherJSON(): Observable<forecast.Forecast> {
+    getWeatherObservable(): Observable<IDay[]> {
         const params = this.httpParams.toString();
-        return IntervalObservable.create(this.seconds(10)).mergeMap(
-            () => this.http
-                    .get('http://api.openweathermap.org/data/2.5/forecast?' + params)
-                    .map( data => {
-                        this.mapToRelevantFields(data);
-                        return this.forecast;
-                    })
-        );
+
+        return this.http
+            .get('http://api.openweathermap.org/data/2.5/forecast?' + params)
+            .map( data => {
+                return this.mapToRelevantFields(data);
+            })
+            .catch(
+                (e) => Observable.throw(console.log('Error when loading data from weather API: ', e))
+            );
+
     }
 
-    mapToRelevantFields(rawData: any): void {
-        console.log(rawData);
-
-        // get the section of the day - morning or afternoon
-        const day: forecast.IDay = {
-            section: new Array()
-        };
-
+    mapToRelevantFields(rawData: any): IDay[] {
+        // console.log(rawData);
+        const dayArr: IDay[] = new Array<IDay>();
+        let sectionArr: ISection[] = new Array<ISection>();
         for ( const element of rawData.list ) {
-            let mnt: Moment = moment(element.dt_txt);
+            const mnt: Moment = moment(element.dt_txt);
+            const day: IDay = {};
+            const section: ISection = this.getSectionSegment(element, mnt);
             day.dt = mnt.locale('de').format('dddd, Do MMMM YYYY');
-            const section = this.getSectionSegment(element, mnt);
 
-            // get the day - today tomorrow in two or three days
+            // get the day - today tomorrow in two and three days
             if ( moment().isSame(mnt.format(), 'day') ) { // heute
-                console.log('heute');
+                // console.log('heute');
                 if ( section !== null ) {
-                    day.section.push(section);
+                    sectionArr.push(section);
                     if ( section.daytime === 'abends' ) {
                         day.dayForecast = 'heute';
-                        this.forecast.day.push(day);
+                        day.section = sectionArr;
+                        sectionArr = [];
+                        dayArr.push(day);
                     }
                 }
             } else if ( moment().add(1, 'day').isSame(mnt.format(), 'day') ) { // morgen
-                console.log('morgen');
+                // console.log('morgen');
                 if ( section !== null ) {
-                    day.section.push(section);
+                    sectionArr.push(section);
                     if ( section.daytime === 'abends' ) {
                         day.dayForecast = 'morgen';
-                        this.forecast.day.push(day);
+                        day.section = sectionArr;
+                        sectionArr = [];
+                        dayArr.push(day);
                     }
                 }
             } else if ( moment().add(2, 'day').isSame(mnt.format(), 'day') ) { // übermorgen
-                console.log('übermorgen');
+                // console.log('übermorgen');
                 if ( section !== null ) {
-                    day.section.push(section);
+                    sectionArr.push(section);
                     if ( section.daytime === 'abends' ) {
                         day.dayForecast = 'übermorgen';
-                        this.forecast.day.push(day);
+                        day.section = sectionArr;
+                        sectionArr = [];
+                        dayArr.push(day);
                     }
                 }
             } else if ( moment().add(3, 'day').isSame(mnt.format(), 'day') ) { // in drei tagen
-                console.log('in drei tagen');
+                // console.log('in 3 tagen');
                 if ( section !== null ) {
-                    day.section.push(section);
+                    sectionArr.push(section);
                     if ( section.daytime === 'abends' ) {
-                        day.dayForecast = 'in drei Tagen';
-                        this.forecast.day.push(day);
+                        day.dayForecast = 'in 3 Tagen';
+                        day.section = sectionArr;
+                        sectionArr = [];
+                        dayArr.push(day);
                     }
                 }
             } else {
                 break;
             }
         }
+        return dayArr;
     }
 
-    getSectionSegment(element: any, mnt: Moment): forecast.ISection {
-        let sct: forecast.ISection = {
+    getSectionSegment(element: any, mnt: Moment): any {
+        const s: ISection = {
             weather: {
                 temperature: element.main.temp,
                 wind: element.wind.speed,
@@ -104,19 +108,21 @@ export class AppService {
                 description: element.weather[0].description
             }
         };
-
         if ( mnt.hour() === 3 ) {
-            sct.daytime = 'nachts';
+            s.daytime = 'nachts';
+            s.index = 0;
         } else if ( mnt.hour() === 9 ) {
-            sct.daytime = 'morgens';
+            s.daytime = 'morgens';
+            s.index = 1;
         } else if ( mnt.hour() === 15 ) {
-            sct.daytime = 'mittags';
+            s.daytime = 'mittags';
+            s.index = 2;
         } else if ( mnt.hour() === 21 ) {
-            sct.daytime = 'abends';
+            s.daytime = 'abends';
+            s.index = 3;
         } else {
-            sct = null;
+            return null;
         }
-
-        return sct;
+        return s;
     }
 }

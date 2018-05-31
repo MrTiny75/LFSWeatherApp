@@ -4,16 +4,19 @@ export class Forecast {
 
 export interface IDay {
     dt?: string;
-    dayForecast?: 'heute'|'morgen'|'übermorgen'|'in drei Tagen';
+    dayForecast?: 'heute'|'morgen'|'übermorgen'|'in 3 Tagen';
     section?: ISection[];
 }
 
 export interface ISection {
     daytime?: 'morgens'|'mittags'|'abends'|'nachts';
-    weather: {
-        temperature: string;
-        wind: string;
-        rain?: string;
-        description: string;
-    };
+    weather?: IWeather;
+    index?: number;
+}
+
+export interface IWeather {
+    temperature: string;
+    wind: string;
+    rain?: string;
+    description: string;
 }
