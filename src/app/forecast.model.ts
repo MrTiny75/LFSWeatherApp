@@ -19,4 +19,5 @@ export interface IWeather {
     wind: string;
     rain?: string;
     description: string;
+    icon?: string;
 }

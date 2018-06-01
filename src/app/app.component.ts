@@ -24,8 +24,8 @@ export class AppComponent implements OnInit {
     this.day$ = this.appService.getWeatherObservable();
 
     this.day$.toPromise().then( data => {
-          console.log(data);
-          data.forEach( x => console.log(x) );
+          console.log('Vorhersage: ', data);
+          // data.forEach( x => console.log(x) );
         });
   }
 

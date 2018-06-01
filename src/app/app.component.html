@@ -1,17 +1,20 @@
-{{ dateTimeNow }}<br>
+<p class="datumsAnzeige">{{ dateTimeNow }}</p>
 <div>
     <table>
             <tr>
-                <td></td>
-                <td>nachts</td>
-                <td>morgens</td>
-                <td>mittags</td>
-                <td>abends</td>
+                <th></th>
+                <th>nachts</th>
+                <th>morgens</th>
+                <th>mittags</th>
+                <th>abends</th>
             </tr>
             <tr *ngFor="let day of (day$ | async)">
                <td>{{ day.dayForecast }}</td>
                <td *ngFor="let section of getSections(day.section); let i = index">
-                   <div *ngIf=" i === section.index ">{{ section.weather.description }}</div>
+                   <div *ngIf=" i === section.index ">
+                       <!-- {{ section.weather.description }} --> 
+                       <img [src]="section.weather.icon">
+                    </div>
                </td> 
             </tr>
     </table>

@@ -38,7 +38,7 @@ export class AppService {
     }
 
     mapToRelevantFields(rawData: any): IDay[] {
-        // console.log(rawData);
+        console.log('Rowdaten: ', rawData);
         const dayArr: IDay[] = new Array<IDay>();
         let sectionArr: ISection[] = new Array<ISection>();
         for ( const element of rawData.list ) {
@@ -105,7 +105,8 @@ export class AppService {
                 temperature: element.main.temp,
                 wind: element.wind.speed,
                 rain: (element.rain) ? element.rain['3h'] : '0',
-                description: element.weather[0].description
+                description: element.weather[0].description,
+                icon: 'http://openweathermap.org/img/w/' + element.weather[0].icon + '.png'
             }
         };
         if ( mnt.hour() === 3 ) {
