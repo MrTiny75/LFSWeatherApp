@@ -10,6 +10,7 @@ export interface IDay {
 
 export interface ISection {
     daytime?: 'morgens'|'mittags'|'abends'|'nachts';
+    dayt?: '09:00' | '15:00' | '21:00' | '03:00';
     weather?: IWeather;
     index?: number;
 }

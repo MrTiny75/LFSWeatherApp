@@ -45,7 +45,8 @@ export class AppService {
             const mnt: Moment = moment(element.dt_txt);
             const day: IDay = {};
             const section: ISection = this.getSectionSegment(element, mnt);
-            day.dt = mnt.locale('de').format('dddd, Do MMMM YYYY');
+            // day.dt = mnt.locale('de').format('dddd, Do MMMM YYYY');
+            day.dt = mnt.toISOString();
 
             // get the day - today tomorrow in two and three days
             if ( moment().isSame(mnt.format(), 'day') ) { // heute
@@ -102,7 +103,7 @@ export class AppService {
     getSectionSegment(element: any, mnt: Moment): any {
         const s: ISection = {
             weather: {
-                temperature: element.main.temp,
+                temperature: Math.round(element.main.temp).toString(),
                 wind: element.wind.speed,
                 rain: (element.rain) ? element.rain['3h'] : '0',
                 description: element.weather[0].description,
@@ -111,15 +112,19 @@ export class AppService {
         };
         if ( mnt.hour() === 3 ) {
             s.daytime = 'nachts';
+            s.dayt = '03:00';
             s.index = 0;
         } else if ( mnt.hour() === 9 ) {
             s.daytime = 'morgens';
+            s.dayt = '09:00';
             s.index = 1;
         } else if ( mnt.hour() === 15 ) {
             s.daytime = 'mittags';
+            s.dayt = '15:00';
             s.index = 2;
         } else if ( mnt.hour() === 21 ) {
             s.daytime = 'abends';
+            s.dayt = '21:00';
             s.index = 3;
         } else {
             return null;

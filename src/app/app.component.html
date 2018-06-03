@@ -1,21 +1,21 @@
 <p class="datumsAnzeige">{{ dateTimeNow }}</p>
-<div>
+<div class="tablewrap">
     <table>
             <tr>
                 <th></th>
-                <th>nachts</th>
-                <th>morgens</th>
-                <th>mittags</th>
-                <th>abends</th>
+                <th>0 - 3</th>
+                <th>6 - 9</th>
+                <th>12-15</th>
+                <th>18-21</th>
             </tr>
             <tr *ngFor="let day of (day$ | async)">
-               <td>{{ day.dayForecast }}</td>
-               <td *ngFor="let section of getSections(day.section); let i = index">
-                   <div *ngIf=" i === section.index ">
-                       <!-- {{ section.weather.description }} --> 
-                       <img [src]="section.weather.icon">
+                <td class="firstcol">{{ day.dt | amLocal: 'de' | amDateFormat: 'dd' | uppercase }}</td> 
+                <td *ngFor="let section of getSections(day.section); let i = index" class="othercol">
+                <div *ngIf=" i === section.index " class="poswrap">
+                     <img [src]="section.weather.icon"> 
+                     <span class="poscont"> {{ section.weather.temperature }}°</span>
                     </div>
-               </td> 
+                </td> 
             </tr>
     </table>
 </div>

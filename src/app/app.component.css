@@ -1,17 +1,52 @@
-table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
+
+table {
+    display: block;    
+    overflow-x: auto;
+    white-space: nowrap;
+    border-spacing: 0;     
+    /* border-collapse: separate;      */
+    /* border-bottom: 1px solid #ddd;      */
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+th, td {
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 0.9em;
+    vertical-align: middle;    
 }
 
 th {
     font-weight: bold;
 }
 
-th, td {
-    width: 120px;
-}
-
 .datumsAnzeige {
     font-weight: bold;
     font-size: 1.5em;
+}
+
+.tablewrap {
+    border: 1px;
+    border-style: solid;
+    display: inline-block;
+    border-color:  #f2f2f2;
+}
+
+.poswrap {
+    position: relative;
+}
+
+.poscont {
+    position: absolute;
+    padding-top: 19px;
+}
+
+.firstcol {
+    width: 30px;
+}
+
+.othercol {
+    width: 100px;
 }
